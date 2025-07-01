@@ -1,0 +1,125 @@
+C51 COMPILER V9.57.0.0   LCD1602                                                           06/30/2025 14:48:53 PAGE 1   
+
+
+C51 COMPILER V9.57.0.0, COMPILATION OF MODULE LCD1602
+OBJECT MODULE PLACED IN .\Objects\LCD1602.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE LCD1602.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\L
+                    -CD1602.lst) TABS(2) OBJECT(.\Objects\LCD1602.obj)
+
+line level    source
+
+   1          #include "LCD1602.h"
+   2          
+   3          //bit lcd_busy()//检测LCD是否忙
+   4          //{
+   5          //  bit result;
+   6          //  LCD_RS = 0;
+   7          //  LCD_RW = 1;
+   8          //  LCD_EN = 1;//代表进入了读指令状态
+   9          //  delayNOP();//延时4us
+  10          //  result=(bit)(P2&0x80);
+  11          //  LCD_EN = 0;
+  12          //  return result;
+  13          
+  14          //}
+  15          
+  16          void lcd_wcmd(unsigned char cmd)
+  17            {
+  18   1      //    while(lcd_busy()==1);
+  19   1          LCD_RS = 0;
+  20   1          LCD_RW = 0;
+  21   1          LCD_EN = 0;
+  22   1          _nop_();
+  23   1          _nop_();
+  24   1          P2 = cmd;
+  25   1          delayNOP();//延时4us
+  26   1          LCD_EN = 1;
+  27   1          delayNOP();//延时4us
+  28   1          LCD_EN = 0;
+  29   1        
+  30   1        }
+  31          
+  32          void lcd_init()
+  33          {
+  34   1        lcd_wcmd(0x38);  // 8位数据，2行，5×7字体
+  35   1        lcd_wcmd(0x0C);  // 开显示，不显示光标
+  36   1        lcd_wcmd(0x06);  // 写入新数据时光标右移
+  37   1        lcd_wcmd(0x01);  // 清屏
+  38   1      }
+  39          
+  40          void lcd_wdat(unsigned char dat)
+  41          {
+  42   1      //  while(lcd_busy() == 1); // 等待LCD空闲
+  43   1        LCD_RS = 1;  // 写数据模式
+  44   1        LCD_RW = 0;  // 写
+  45   1        LCD_EN = 0;
+  46   1        _nop_(); _nop_(); // 小延时
+  47   1        P2 = dat;
+  48   1        delayNOP();       // 延时 4us
+  49   1        LCD_EN = 1;
+  50   1        delayNOP();
+  51   1        LCD_EN = 0;
+  52   1      }
+  53          void lcd_set_cursor(unsigned char line, unsigned char col)
+  54          {
+C51 COMPILER V9.57.0.0   LCD1602                                                           06/30/2025 14:48:53 PAGE 2   
+
+  55   1        unsigned char address;
+  56   1        if (line == 1)
+  57   1          address = 0x80 + (col - 1);      // 第一行地址：0x80 ~ 0x8F
+  58   1        else
+  59   1          address = 0x80 + 0x40 + (col - 1); // 第二行地址：0xC0 ~ 0xCF
+  60   1      
+  61   1        lcd_wcmd(address);
+  62   1      }
+  63          
+  64          void LCD_ShowString(unsigned char line, unsigned char col, char *str)
+  65          {
+  66   1        lcd_set_cursor(line, col);
+  67   1        while (*str != '\0')
+  68   1        {
+  69   2          lcd_wdat(*str++);
+  70   2        }
+  71   1      }
+  72          
+  73          void LCD_ShowChar(unsigned char Line, unsigned char Column, unsigned char Char)
+  74          {
+  75   1          lcd_set_cursor(Line, Column);
+  76   1          lcd_wdat(Char);
+  77   1      }
+  78          
+  79          int LCD_Pow(int base, int exp)
+  80          {
+  81   1        int result = 1;
+  82   1        while (exp--)
+  83   1        {
+  84   2          result *= base;
+  85   2        }
+  86   1        return result;
+  87   1      }
+  88          
+  89          void LCD_ShowNum(unsigned char Line, unsigned char Column, unsigned int Number, unsigned char Length)
+  90          {
+  91   1        unsigned char i;
+  92   1        lcd_set_cursor(Line, Column);
+  93   1        for(i = Length; i > 0; i--)
+  94   1        {
+  95   2          lcd_wdat('0' + (Number / LCD_Pow(10, i - 1)) % 10);
+  96   2        }
+  97   1      }
+  98          
+  99          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    230    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      11
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

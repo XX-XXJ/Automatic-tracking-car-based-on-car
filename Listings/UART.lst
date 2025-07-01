@@ -1,0 +1,126 @@
+C51 COMPILER V9.57.0.0   UART                                                              06/30/2025 14:48:51 PAGE 1   
+
+
+C51 COMPILER V9.57.0.0, COMPILATION OF MODULE UART
+OBJECT MODULE PLACED IN .\Objects\UART.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE UART.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\UART
+                    -.lst) TABS(2) OBJECT(.\Objects\UART.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include "UART.h"
+   3          #include <stdio.h>
+   4          
+   5          /**
+   6            * @brief  串口初始化，4800bps@12.000MHz
+   7            * @param  无
+   8            * @retval 无
+   9            */
+  10          void UART_Init(void)
+  11          {
+  12   1          // 串口控制寄存器配置
+  13   1          SCON = 0x50;        // 8位数据位，可变波特率，允许接收
+  14   1          
+  15   1          // 波特率加倍控制
+  16   1          PCON |= 0x80;       // SMOD=1 (波特率加倍)
+  17   1          
+  18   1          // 定时器1模式配置
+  19   1          TMOD &= 0x0F;       // 清除定时器1模式位
+  20   1          TMOD |= 0x20;       // 定时器1工作于模式2 (8位自动重装)
+  21   1          
+  22   1          // 波特率设置 (9600 bps @ 115200MHz)
+  23   1              TL1 = 0xFA;     // 定时初值
+  24   1              TH1 = 0xFA;     // 重装值
+  25   1          
+  26   1          // 定时器控制
+  27   1          ET1 = 0;            // 禁止定时器1中断
+  28   1          TR1 = 1;            // 启动定时器1
+  29   1          
+  30   1          // 串口中断使能（如果不需要接收功能，可以注释掉）
+  31   1      //     ES = 1;           // 使能串口中断
+  32   1      //     EA = 1;           // 开启总中断
+  33   1      }
+  34          
+  35          /**
+  36            * @brief  串口发送一个字节数据
+  37            * @param  Byte 要发送的数据字节
+  38            * @retval 无
+  39            */
+  40          
+  41          void UART_SendByte(unsigned char Byte)
+  42            
+  43          {
+  44   1          SBUF = Byte;
+  45   1          while(TI == 0);
+  46   1          TI = 0;
+  47   1      }
+  48          
+  49          /**
+  50            * @brief  发送字符串
+  51            * @param  str 要发送的字符串指针
+  52            * @retval 无
+  53            */
+  54          void UART_SendString(char *str)
+C51 COMPILER V9.57.0.0   UART                                                              06/30/2025 14:48:51 PAGE 2   
+
+  55          {
+  56   1          while(*str != '\0') {
+  57   2              UART_SendByte(*str++);
+  58   2          }
+  59   1      }
+  60          
+  61          /**
+  62            * @brief  发送正整数 (0-65535)
+  63            * @param  num 要发送的正整数
+  64            * @retval 无
+  65            */
+  66          void UART_SendNumber(unsigned int num)
+  67          {
+  68   1          char buffer[6];     // 存储转换后的数字字符串
+  69   1          unsigned char i = 0;
+  70   1          unsigned int temp = num;
+  71   1          
+  72   1          // 处理0的特殊情况
+  73   1          if (num == 0) {
+  74   2              UART_SendByte('0');
+  75   2              return;
+  76   2          }
+  77   1          
+  78   1          // 提取每一位数字
+  79   1          while (temp > 0) {
+  80   2              buffer[i++] = (temp % 10) + '0';
+  81   2              temp /= 10;
+  82   2          }
+  83   1          
+  84   1          // 反转并发送数字
+  85   1          while (i > 0) {
+  86   2              UART_SendByte(buffer[--i]);
+  87   2          }
+  88   1      }
+  89          
+  90          // 如果需要接收功能，请取消注释并实现中断服务函数
+  91          /*
+  92          void UART_Routine(void) interrupt 4
+  93          {
+  94              if(RI) {
+  95                  RI = 0;         // 清除接收中断标志
+  96                  // 接收数据处理可以在这里添加
+  97                  // unsigned char received = SBUF;
+  98              }
+  99          }
+ 100          */
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    157    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      10
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
