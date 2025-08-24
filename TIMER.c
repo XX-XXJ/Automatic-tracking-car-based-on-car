@@ -10,4 +10,5 @@ void Timer0_Init(void)
     TR0 = 1;
     ET0 = 1;
     EA = 1;
+		PT0 = 0;
 }

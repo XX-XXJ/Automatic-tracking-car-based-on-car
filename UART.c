@@ -26,10 +26,10 @@ void UART_Init(void)
     // 定时器控制
     ET1 = 0;            // 禁止定时器1中断
     TR1 = 1;            // 启动定时器1
-    
-    // 串口中断使能（如果不需要接收功能，可以注释掉）
-//     ES = 1;           // 使能串口中断
-//     EA = 1;           // 开启总中断
+    IP|=0x10;
+//    // 串口中断使能（如果不需要接收功能，可以注释掉）
+     ES = 1;           // 使能串口中断
+     EA = 1;           // 开启总中断
 }
 
 /**
@@ -87,14 +87,65 @@ void UART_SendNumber(unsigned int num)
     }
 }
 
-// 如果需要接收功能，请取消注释并实现中断服务函数
-/*
-void UART_Routine(void) interrupt 4
+//// 鐢垫満鍒ゆ柇寮�鍚爣蹇椾綅
+//extern bit Motor_Running;
+//extern float target_speed;
+
+// 鐢垫満鎺у埗鏍囧織
+//extern bit Motor_Running;
+extern float target_speed;
+//extern float saved_speed;
+extern float Rspeed;
+extern float Lspeed;
+void Bluetooth_Control(unsigned char cmd)
 {
-    if(RI) {
-        RI = 0;         // 清除接收中断标志
-        // 接收数据处理可以在这里添加
-        // unsigned char received = SBUF;
+    switch(cmd)
+    {
+        case 'A':   // 启动电机（恢复之前的速度）
+            // Motor_Running = 1;
+            // target_speed = saved_speed;
+            UART_SendString("Motor Started\r\n");
+            break;
+
+        case 'B':   // 停止电机（停止转动，但保留速度设置）
+            // Motor_Running = 0;
+            // saved_speed = target_speed; // 保存当前速度
+            target_speed = 0;             // 暂时设为0
+            UART_SendString("Motor Stopped\r\n");
+            break;
+
+        case 'C':   // 速度档位1（50%）
+            target_speed = 50;
+            // saved_speed = 50;
+            UART_SendString("Speed: 50%\r\n");
+            break;
+
+        case 'D':   // 速度档位2（80%）
+            target_speed = 80;
+            // saved_speed = 80;
+            UART_SendString("Speed: 80%\r\n");
+            break;
+
+        case 'E':   // 速度档位3（100%）
+            target_speed = 100;
+            // saved_speed = 100;
+            UART_SendString("Speed: 100%\r\n");
+            break;
+
+        default:    // 未知指令
+            UART_SendString("Unknown Command\r\n");
+            break;
     }
 }
-*/
+
+
+// 如果需要接收功能，请取消注释并实现中断服务函数
+void UART_Routine(void) interrupt 4
+{
+	unsigned char received;
+    if(RI) {
+        RI = 0;  			
+        received = SBUF;  // 读取接收到的数据
+        Bluetooth_Control(received);  // 处理蓝牙命令
+	}
+}

@@ -2,9 +2,9 @@
 #define __SENSOR_H__
 
 // 红外传感器引脚
-sbit Left_LED = P0^1;
-sbit Mid_LED  = P0^5;
-sbit Right_LED= P0^6;
+sbit Left_LED = P1^5;			
+sbit Mid_LED = P1^6;//中间
+sbit Right_LED = P1^7;
 //位移偏差
 extern float err;
 

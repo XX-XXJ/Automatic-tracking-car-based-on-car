@@ -16,10 +16,11 @@ float Sensor_GetError(void)
     err = 0;
 
     if(L == 0 && M == 1 && R == 0)      err = 0;
-    else if(L == 1 && M == 1 && R == 0) err = -1;
-    else if(L == 1 && M == 0 && R == 0) err = -2.5;
-    else if(L == 0 && M == 1 && R == 1) err = 1;
-    else if(L == 0 && M == 0 && R == 1) err = 2.5;
+    else if(L == 1 && M == 1 && R == 0) err = -2;
+    else if(L == 1 && M == 0 && R == 0) err = -4;
+    else if(L == 0 && M == 1 && R == 1) err = 2;
+    else if(L == 0 && M == 0 && R == 1) err = 4;
+
     else                                err = 0; // 全黑或全白默认中线
 
     return err;

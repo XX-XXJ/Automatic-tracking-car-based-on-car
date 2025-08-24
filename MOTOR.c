@@ -29,10 +29,10 @@ void Motor_Init(void)
 --------------------------------------------------*/
 void Motor_SetSpeed(float left, float right)
 {
-    if(left > 100) left = 100;
-    if(left < -100) left = -100;
-    if(right > 100) right = 100;
-    if(right < -100) right = -100;
+    if(left > 255) left = 255;
+    if(left < -255) left = -255;
+    if(right > 255) right = 255;
+    if(right < -255) right = -255;
 
     Lspeed = left;
     Rspeed = right;

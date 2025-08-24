@@ -16,7 +16,7 @@ void PID_Init(float kp, float ki, float kd)
 void PID_Reset(void)
 {
     integral = 0;
-    prev_error = 0;
+    prev_error = 0;		
 }
 
 float PID_Compute(float error)
@@ -24,12 +24,7 @@ float PID_Compute(float error)
     p = Kp * error;
     i = Ki * integral;
     d = Kd * (error - prev_error);
-//old
-//    if(integral > 50)  integral = 50;  // 积分限幅
-//    if(integral < -50) integral = -50;
-//new
 		if(i>10) i = 10; //积分限幅
-
     prev_error = error;
     integral += error;
     return p + i + d;

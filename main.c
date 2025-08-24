@@ -7,70 +7,39 @@
 #include "Delay.h"
 #include "LCD1602.h"
 
+sbit KeyStart = P3^7;// 定义启动按键
+
 unsigned char PWM_Count = 0;
-float target_speed = 80;
+float target_speed = 200;
+float urge_speed = 100;
 float err,output;
 
-
-
-void Display(float a, float b)
-{		
-		int l_int;
-		int r_int;
-		l_int = (int)(a * 10);
-		r_int = (int)(b * 10);
-    // === 显示左速度 ===
-    LCD_ShowString(1, 1, "LSpeed:      ");  // 保留足够空位
-    if (l_int < 0)
-    {
-        LCD_ShowChar(1, 8, '-');
-        l_int = -l_int;
-    }
-    else
-    {
-        LCD_ShowChar(1, 8, '+');
-    }
-
-    LCD_ShowNum(1, 9, l_int / 10, 2);   // 整数部分
-    LCD_ShowChar(1, 11, '.');
-    LCD_ShowNum(1, 12, l_int % 10, 1);  // 小数部分
-
-    // === 显示右速度 ===
-    LCD_ShowString(2, 1, "RSpeed:      ");
-    if (r_int < 0)
-    {
-        LCD_ShowChar(2, 8, '-');
-        r_int = -r_int;
-    }
-    else
-    {
-        LCD_ShowChar(2, 8, '+');
-    }
-
-    LCD_ShowNum(2, 9, r_int / 10, 2);
-    LCD_ShowChar(2, 11, '.');
-    LCD_ShowNum(2, 12, r_int % 10, 1);
-}
-
+unsigned char display_count = 0;
 
 void main()
 {
     UART_Init();
     Motor_Init();
     Sensor_Init();
-    PID_Init(60.0, 0.02, 2.0);
+    PID_Init(80.0, 0.01, 5.0);
 		LCD_Init();
-    EA=0;
+    EA=1;
 		TR0=0;
-	
-		
+    UART_SendString("Bluetooth Control Car Ready\r\n");
+    UART_SendString("Commands:\r\n");
+    UART_SendString("S: Start Motor\r\n");
+    UART_SendString("P: Stop Motor (Keep Speed Setting)\r\n");
+    UART_SendString("1: Set Speed 40%\r\n");
+    UART_SendString("2: Set Speed 60%\r\n");
+    UART_SendString("3: Set Speed 100%\r\n");
+
 		while(1)
 		{
 			// 等待按键按下（带消抖）
-			if(P3^7 == 0)  // 按键按下
+			if(KeyStart == 0)  // 按键按下
 			{
 				Delay(20); // 消抖
-				if(P3^7 == 0)
+				if(KeyStart == 0)
 				{
 					Timer0_Init();     // 启动定时器
 					break;
@@ -79,7 +48,7 @@ void main()
 		}
     while(1)
 		{
-			Display(Lspeed,Rspeed);
+
 		}// 空循环，控制在中断中完成
 }
 
@@ -88,12 +57,20 @@ void Timer0_ISR(void) interrupt 1
     TL0 = 0xA4;
     TH0 = 0xFF;
     PWM_Count++;
-    PWM_Count %= 80;
+    PWM_Count %= 100;
 
     err = Sensor_GetError();
     output = PID_Compute(err);
-
-    Motor_SetSpeed(target_speed + output, target_speed - output);
+		if(err >= 4 || err <= -4) 
+				Motor_SetSpeed(urge_speed + output, urge_speed - output);
+		else
+				Motor_SetSpeed(target_speed + output, target_speed - output);
     Motor_PWM_Control(PWM_Count);
-
+    // 每 100 个中断（约 100ms）刷新一次 LCD 显示
+    display_count++;
+    if(display_count >= 100)
+    {
+        display_count = 0;
+				LCD_ShowSpeed((int)(Lspeed * 15.0 + 0.5), (int)(Rspeed * 15.0 + 0.5));
+    }
 }

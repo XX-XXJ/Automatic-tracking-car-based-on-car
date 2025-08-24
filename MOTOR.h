@@ -2,10 +2,10 @@
 #define __MOTOR_H__
 
 /*----------- 电机引脚定义 -----------*/
-sbit INA = P2^1;   // 左电机方向 A
-sbit INB = P2^2;   // 左电机方向 B
-sbit INA2 = P2^3;  // 右电机方向 A
-sbit INB2 = P2^4;  // 右电机方向 B
+sbit INA=P1^1;//电机左
+sbit INB=P1^2;
+sbit INA2=P1^3;//电机右
+sbit INB2=P1^4;
 
 // 电机速度变量
 extern float Lspeed;

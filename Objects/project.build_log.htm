@@ -18,7 +18,7 @@ Hex Converter:   OH51.exe V2.7.0.0
 CPU DLL:         S8051.DLL V3.113.0.0
 Dialog DLL:      DP51.DLL V2.64.0.0 
 <h2>Project:</h2>
-D:\Keil_project\小车\project\project.uvproj
+D:\Keil_project\小车\project.uvproj
 Project File Date:  06/30/2025
 
 <h2>Output:</h2>
@@ -33,13 +33,17 @@ compiling Delay.c...
 compiling LCD1602.c...
 linking...
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
-    SEGMENT: ?PR?_UART_SENDSTRING?UART
-*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
     SEGMENT: ?PR?_UART_SENDNUMBER?UART
-Program Size: data=100.0 xdata=0 code=2987
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_LCD_SHOWSIGNEDNUM?LCD1602
+*** WARNING L15: MULTIPLE CALL TO SEGMENT
+    SEGMENT: ?PR?_UART_SENDSTRING?UART
+    CALLER1: ?PR?UART_ROUTINE?UART
+    CALLER2: ?C_C51STARTUP
+Program Size: data=109.0 xdata=0 code=3673
 creating hex file from ".\Objects\project"...
-".\Objects\project" - 0 Error(s), 2 Warning(s).
-Build Time Elapsed:  00:00:02
+".\Objects\project" - 0 Error(s), 3 Warning(s).
+Build Time Elapsed:  00:00:01
 </pre>
 </body>
 </html>

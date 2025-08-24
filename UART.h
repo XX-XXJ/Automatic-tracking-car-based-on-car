@@ -8,5 +8,6 @@ void UART_Init(void);
 void UART_SendByte(unsigned char Byte);
 void UART_SendString(char *str);
 void UART_SendNumber(unsigned int num);
-
+// 蓝牙控制相关函数
+void Bluetooth_Control(unsigned char cmd);
 #endif
